@@ -23,8 +23,17 @@ class Redis
 		void Connect();
 		void disConnect();
 	public:
-		void setString(const string key, const string value);
-		string getString(const string key);
+		void setString(const string & key, const string & value);
+		void setString(const string & key, const int & value);
+		void setString(const string & key, const float & value);
+	private:
+		void setString(const string & data);
+	public:
+		void getString(const string & key, string & value);
+		void getString(const string & key, int & value);
+		void getString(const string & key, float & value);
+	private:
+		void getString(const string & key);
 	private:
 		void freeReply();
 		bool isError();

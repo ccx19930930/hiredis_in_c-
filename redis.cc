@@ -10,12 +10,23 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <sstream>
 #include <iostream>
 
 namespace ccx{
 
 using std::cout;
 using std::endl;
+using std::stringstream;
+
+#define SETSTRING(key, value) \
+	stringstream ss;\
+	ss << "SET " << key << " " << value;\
+	string s;\
+	getline(ss, s);\
+	setString(s);
+
+
 
 
 Redis::Redis()
@@ -41,10 +52,10 @@ void Redis::disConnect()
 	cout << "redis disConnect success" << endl;
 }
 
-void Redis::setString(const string key, const string value)
+void Redis::setString(const string & data)
 {
 	freeReply();
-	_reply = (redisReply*)redisCommand(_context, "SET %s %s", key.c_str(), value.c_str());
+	_reply = (redisReply*)redisCommand(_context, data.c_str());
 	if(!isError())
 	{
 		if (!(_reply->type == REDIS_REPLY_STATUS && strcasecmp(_reply->str,"OK") == 0))
@@ -53,16 +64,51 @@ void Redis::setString(const string key, const string value)
 		}	
 	}
 }
-string Redis::getString(const string key)
+
+void Redis::setString(const string & key, const string & value)
+{
+	SETSTRING(key, value);
+}
+void Redis::setString(const string & key, const int & value)
+{
+	SETSTRING(key, value);
+}
+void Redis::setString(const string & key, const float & value)
+{
+	SETSTRING(key, value);
+}
+
+void Redis::getString(const string & key)
 {
 	freeReply();
 	_reply = (redisReply*)redisCommand(_context, "GET %s", key.c_str());
-	isError();
-	if(_reply->type == REDIS_REPLY_STRING)
+}
+
+void Redis::getString(const string & key, string & value)
+{
+	getString(key);
+	if(!isError() && _reply->type == REDIS_REPLY_STRING)
 	{
-		return _reply->str;
+		value = _reply->str;
 	}
-	return NULL;
+}
+
+void Redis::getString(const string & key, int & value)
+{
+	getString(key);
+	if(!isError() && _reply->type == REDIS_REPLY_INTEGER)
+	{
+		value = _reply->integer;
+	}
+}
+
+void Redis::getString(const string & key, float & value)
+{
+	getString(key);
+	if(!isError() && _reply->type == REDIS_REPLY_INTEGER)
+	{
+		value = _reply->integer;
+	}
 }
 
 void Redis::freeReply()
