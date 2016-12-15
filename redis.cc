@@ -36,7 +36,7 @@ Redis::Redis()
 
 void Redis::Connect()
 {
-	_context = redisConnect(_conf.getIP().c_str(), _conf.getPort());
+	_context = ::redisConnect(_conf.getIP().c_str(), _conf.getPort());
 	cout << _conf.getIP() << "-" << _conf.getPort() << endl;
 	if(_context && _context->err)
 	{
@@ -48,14 +48,14 @@ void Redis::Connect()
 
 void Redis::disConnect()
 {
-	redisFree(_context);
+	::redisFree(_context);
 	cout << "redis disConnect success" << endl;
 }
 
 void Redis::setString(const string & data)
 {
 	freeReply();
-	_reply = (redisReply*)redisCommand(_context, data.c_str());
+	_reply = (redisReply*)::redisCommand(_context, data.c_str());
 	if(!isError())
 	{
 		if (!(_reply->type == REDIS_REPLY_STATUS && strcasecmp(_reply->str,"OK") == 0))
@@ -81,7 +81,7 @@ void Redis::setString(const string & key, const float & value)
 void Redis::getString(const string & key)
 {
 	freeReply();
-	_reply = (redisReply*)redisCommand(_context, "GET %s", key.c_str());
+	_reply = (redisReply*)::redisCommand(_context, "GET %s", key.c_str());
 }
 
 void Redis::getString(const string & key, string & value)
@@ -96,18 +96,18 @@ void Redis::getString(const string & key, string & value)
 void Redis::getString(const string & key, int & value)
 {
 	getString(key);
-	if(!isError() && _reply->type == REDIS_REPLY_INTEGER)
+	if(!isError() && _reply->type == REDIS_REPLY_STRING)
 	{
-		value = _reply->integer;
+		value = ::atoi(_reply->str);
 	}
 }
 
 void Redis::getString(const string & key, float & value)
 {
 	getString(key);
-	if(!isError() && _reply->type == REDIS_REPLY_INTEGER)
+	if(!isError() && _reply->type == REDIS_REPLY_STRING)
 	{
-		value = _reply->integer;
+		value = ::atof(_reply->str);
 	}
 }
 
@@ -115,7 +115,7 @@ void Redis::freeReply()
 {
 	if(_reply)
 	{
-		freeReplyObject(_reply);
+		::freeReplyObject(_reply);
 		_reply = NULL;
 	}
 }

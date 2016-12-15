@@ -18,12 +18,18 @@ int main()
 	ccx::Redis redis;
 	redis.Connect();
 	redis.setString("name", "lii");
+
 	string s;
 	redis.getString("name", s);
 	cout << s << endl;
+
 	redis.setString("age", "30");
 	redis.getString("age", s);
 	cout << s << endl;
+	
+	int i;
+	redis.getString("age", i);
+	cout << i << endl;	
 
 	redis.disConnect();
 }
